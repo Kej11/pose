@@ -51,6 +51,25 @@ with mp_holistic.Holistic(min_detection_confidence = 0.5, min_tracking_confidenc
                                  mp_drawing.DrawingSpec(color=(245,66,230), thickness=2, circle_radius=2)
                                  )
 
+        #export coordinates
+        try:
+            #extract pose landmarks
+            pose = results.pose_landmarks.landmark
+            pose_row = list(np.array([[landmark.x, landmark.y, landmark.z, landmark.visibility] for landmark in pose]).flatten())
+
+            #extract facelandmarks
+            face = results.face_landmarks.landmark
+            face_row = list(np.array([[landmark.x, landmark.y, landmark.z, landmark.visibility] for landmark in face]).flatten())
+
+            row = pose_row + face_row
+            row.insert(0, class_name)
+
+            with open('coords.csv', mode='a', newline='') as f:
+                csv.writer = csv.writer(f,delimiter=',',quotechar='"',quoting=csv.QUOTE_MINIMAL)
+                csv_writer.writerow(row)
+        
+        except:
+            pass
         #lables frame
         cv2.imshow('Raw Webcame Feed', image)
 
@@ -65,12 +84,15 @@ import csv
 import os
 import numpy as np
 
+#calculated total number of coordinates
 num_coords = len(results.pose_landmarks.landmark) + len(results.face_landmarks.landmark)
 
 landmarks = ['class']
 for val in range(1,num_coords+1):
     landmarks += ['x{}'.format(val), 'y{}'.format(val), 'z{}'.format(val), 'v{}'.format(val)]
-
+#writes landmarks to the CSV
 with open('coords.csv', mode='w', newline='') as f:
     csv_writer = csv.writer(f,delimiter=',',quotechar='"', quoting=csv.QUOTE_MINIMAL)
     csv_writer.writerow(landmarks)
+
+class_name = "Happy"

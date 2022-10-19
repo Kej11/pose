@@ -1,5 +1,25 @@
+#import libraries
 import mediapipe as mp
 import cv2
+import csv
+import os
+import numpy as np
+
+#calculated total number of coordinates
+#num_coords = len(results.pose_landmarks.landmark) + len(results.face_landmarks.landmark)
+num_coords = 501
+
+landmarks = ['class']
+for val in range(1,num_coords+1):
+    landmarks += ['x{}'.format(val), 'y{}'.format(val), 'z{}'.format(val), 'v{}'.format(val)]
+
+landmarks
+#writes landmarks to the CSV
+with open('coords.csv', mode='w', newline='') as f:
+                csv_writer = csv.writer(f,delimiter=',',quotechar='"', quoting=csv.QUOTE_MINIMAL)
+                csv_writer.writerow(landmarks)
+
+class_name = "Happy"
 
 #import drawing utilities
 mp_drawing = mp.solutions.drawing_utils
@@ -61,15 +81,17 @@ with mp_holistic.Holistic(min_detection_confidence = 0.5, min_tracking_confidenc
             face = results.face_landmarks.landmark
             face_row = list(np.array([[landmark.x, landmark.y, landmark.z, landmark.visibility] for landmark in face]).flatten())
 
-            row = pose_row + face_row
+            row = pose_row+face_row
             row.insert(0, class_name)
+            
 
-            with open('coords.csv', mode='a', newline='') as f:
+            with open('coords.csv', mode='a') as t:
                 csv.writer = csv.writer(f,delimiter=',',quotechar='"',quoting=csv.QUOTE_MINIMAL)
-                csv_writer.writerow(row)
+                csv.writer.writerow(row)
         
         except:
             pass
+
         #lables frame
         cv2.imshow('Raw Webcame Feed', image)
 
@@ -79,20 +101,5 @@ with mp_holistic.Holistic(min_detection_confidence = 0.5, min_tracking_confidenc
 cap.release()
 cv2.destroyAllWindows()
 
-#import libraries
-import csv
-import os
-import numpy as np
 
-#calculated total number of coordinates
-num_coords = len(results.pose_landmarks.landmark) + len(results.face_landmarks.landmark)
 
-landmarks = ['class']
-for val in range(1,num_coords+1):
-    landmarks += ['x{}'.format(val), 'y{}'.format(val), 'z{}'.format(val), 'v{}'.format(val)]
-#writes landmarks to the CSV
-with open('coords.csv', mode='w', newline='') as f:
-    csv_writer = csv.writer(f,delimiter=',',quotechar='"', quoting=csv.QUOTE_MINIMAL)
-    csv_writer.writerow(landmarks)
-
-class_name = "Happy"
